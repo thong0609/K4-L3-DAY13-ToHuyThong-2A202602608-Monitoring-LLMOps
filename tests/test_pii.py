@@ -20,3 +20,28 @@ def test_scrub_common_vietnamese_phone_formats() -> None:
         out = scrub_text(f"Contact: {phone_number}")
         assert phone_number not in out
         assert "REDACTED_PHONE_VN" in out
+
+
+def test_scrub_cccd() -> None:
+    cccd_numbers = (
+        "079201234567",
+        "079 201 234 567",
+    )
+
+    for cccd in cccd_numbers:
+        out = scrub_text(f"CCCD: {cccd}")
+        assert cccd.replace(" ", "") not in out
+        assert "REDACTED_CCCD" in out
+
+
+def test_scrub_credit_card() -> None:
+    card_numbers = (
+        "4111111111111111",
+        "4111-1111-1111-1111",
+        "4111 1111 1111 1111",
+    )
+
+    for card in card_numbers:
+        out = scrub_text(f"Card: {card}")
+        assert card.replace("-", "").replace(" ", "") not in out
+        assert "REDACTED_CREDIT_CARD" in out

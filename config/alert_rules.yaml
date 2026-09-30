@@ -1,25 +1,30 @@
 alerts:
-  - name: TODO_alert_1
-    severity: TODO
-    condition: TODO
-    duration: TODO
+  - name: HighLatencyP95
+    severity: warning
+    duration: 5m
+    condition: 'p95(latency_ms) > 3000'
     type: symptom-based
     channel: slack
-    owner: TODO
+    owner: student-2A202602608
     runbook: docs/alerts.md#alert-1
-  - name: TODO_alert_2
-    severity: TODO
-    condition: TODO
-    duration: TODO
+    sli: response_sent.latency_ms
+
+  - name: HighErrorRate
+    severity: critical
+    duration: 3m
+    condition: 'error_rate_pct > 2'
     type: symptom-based
     channel: slack
-    owner: TODO
+    owner: student-2A202602608
     runbook: docs/alerts.md#alert-2
-  - name: TODO_alert_3
-    severity: TODO
-    condition: TODO
-    duration: TODO
+    sli: request_failed / request_received
+
+  - name: LowQualityScore
+    severity: warning
+    duration: 10m
+    condition: 'avg(quality_score) < 0.75'
     type: symptom-based
     channel: slack
-    owner: TODO
+    owner: student-2A202602608
     runbook: docs/alerts.md#alert-3
+    sli: response_sent.quality_score
