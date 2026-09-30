@@ -48,25 +48,39 @@ async def metrics() -> dict:
 
 @app.post("/chat", response_model=ChatResponse)
 async def chat(request: Request, body: ChatRequest) -> ChatResponse:
-    # TODO: Enrich logs with request context (user_id_hash, session_id, feature, model, env)
-    # bind_contextvars(...)
+    # Enrich logs with request context
+    user_id_hash = hash_user_id(body.user_id)
+    session_id = body.session_id
+    feature = body.feature
+    model = "gpt-4o-mini"  # default model name
+    env = os.getenv("APP_ENV", "dev")
     
     log.info(
         "request_received",
         service="api",
+        user_id_hash=user_id_hash,
+        session_id=session_id,
+        feature=feature,
+        model=model,
+        env=env,
         payload={"message_preview": summarize_text(body.message)},
     )
     try:
         result = agent.run(
             user_id=body.user_id,
-            feature=body.feature,
-            session_id=body.session_id,
+            feature=feature,
+            session_id=session_id,
             message=body.message,
             correlation_id=request.state.correlation_id,
         )
         log.info(
             "response_sent",
             service="api",
+            user_id_hash=user_id_hash,
+            session_id=session_id,
+            feature=feature,
+            model=model,
+            env=env,
             latency_ms=result.latency_ms,
             ttft_ms=result.ttft_ms,
             tokens_in=result.tokens_in,
@@ -93,6 +107,11 @@ async def chat(request: Request, body: ChatRequest) -> ChatResponse:
         log.error(
             "request_failed",
             service="api",
+            user_id_hash=user_id_hash,
+            session_id=session_id,
+            feature=feature,
+            model=model,
+            env=env,
             error_type=error_type,
             tool_name="retrieval" if isinstance(exc, RuntimeError) else None,
             tool_success=False if isinstance(exc, RuntimeError) else None,

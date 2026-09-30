@@ -5,6 +5,7 @@ import time
 from dataclasses import dataclass
 
 from .incidents import STATE
+from .tracing import observe
 
 
 @dataclass
@@ -25,6 +26,7 @@ class FakeLLM:
     def __init__(self, model: str = "claude-sonnet-4-5") -> None:
         self.model = model
 
+    @observe(name="generation", as_type="generation", capture_input=False, capture_output=False)
     def generate(self, prompt: str) -> FakeResponse:
         started = time.perf_counter()
         time.sleep(0.05)  # mô phỏng thời điểm token đầu tiên sẵn sàng
